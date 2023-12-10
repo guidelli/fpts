@@ -1,3 +1,13 @@
-// run `node index.js` in the terminal
+import { parseUrl} from 'parse-url'
 
-console.log(`Hello Node.js v${process.versions.node}!`);
+
+function isDotCom(url) {
+
+try{
+    const parsed= parseUrl('http://www.website.com/posts?hello=world')
+}
+catch{
+    return false
+}
+
+}
