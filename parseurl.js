@@ -38,7 +38,9 @@ const tapLog= tap(log)
 
 const tryParsingUrl= url=>O.tryCatch(()=>parseUrl(url))
 
-const getTld= resource=> pipe(resource, r=>r.split('.'), A.last)
+const getTld= resource=> pipe(resource, 
+    r=>r.split('.'), 
+    A.last)
 
 function isDotComOpt(url) {
 
@@ -49,14 +51,23 @@ function isDotComOpt(url) {
     const idDotCom= O.getOrElse(()=>false)(isComOpt)
     return idDotCom
 
-    log(isComOpt)
-    
-    /*
-    pipe(url,
-        tryParsingUrl,
-        tapLog)
-        */
+
 }
+
+
+const isDotComOptPipe= url=>pipe(url,
+        tryParsingUrl,
+        O.map(p=>p.resource),
+        O.chain(getTld),
+        O.map(tld=> tld==='com'),
+        O.getOrElse(()=>false))
+
+
+const isDotComOptPipeExists= url=>pipe(url,
+    tryParsingUrl,
+    O.map(p=>p.resource),
+    O.chain(getTld),
+    O.exists(tld=> tld==='com'))
 
 
 const test= f=>{
@@ -68,6 +79,11 @@ const test= f=>{
 }
 
 
-test(isDotCom)
-log('\n------------------\n')
-test(isDotComOpt)
+const fns= [isDotCom, isDotComOpt, isDotComOptPipe, isDotComOptPipeExists]
+fns.forEach(f=>{
+    log('\n------------------\n')
+    test(f)
+})
+
+
+
