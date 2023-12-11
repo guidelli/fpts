@@ -38,17 +38,18 @@ const tapLog= tap(log)
 
 const tryParsingUrl= url=>O.tryCatch(()=>parseUrl(url))
 
-const getTld= resource=> pipe(resource,
-        resource.split('.'),
-        A.last)
+const getTld= resource=> pipe(resource, r=>r.split('.'), A.last)
 
 function isDotComOpt(url) {
 
     const parsedUrlOpt= tryParsingUrl(url)
     const resourceOpt= O.map(p=>p.resource)(parsedUrlOpt)
-    const tldOpt= O.map(getTld)(resourceOpt)
+    const tldOpt= O.chain(getTld)(resourceOpt)
+    const isComOpt= O.map(tld=> tld==='com')(tldOpt)
+    const idDotCom= O.getOrElse(()=>false)(isComOpt)
+    return idDotCom
 
-    log(tldOpt)
+    log(isComOpt)
     
     /*
     pipe(url,
@@ -57,10 +58,16 @@ function isDotComOpt(url) {
         */
 }
 
-log(isDotComOpt('http://www.website.co.com/posts?hello=world'))
 
-/*
-log(isDotCom('http://www.website.co.com/posts?hello=world'))
-log(isDotCom('http://website.com/posts?hello=world'))
-log(isDotCom('http://www.website.net/posts?hello=world'))
-log(isDotCom('dqsdqs')) */
+const test= f=>{
+
+    log(f('http://www.website.co.com/posts?hello=world'))
+    log(f('http://website.com/posts?hello=world'))
+    log(f('http://www.website.net/posts?hello=world'))
+    log(f('dqsdqs')) 
+}
+
+
+test(isDotCom)
+log('\n------------------\n')
+test(isDotComOpt)
