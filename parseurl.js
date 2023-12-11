@@ -1,5 +1,8 @@
 import parseUrl  from 'parse-url'
-import * as O from 'fp-ts/Option'
+import * as O from 'fp-ts/lib/Option.js'
+import * as A from 'fp-ts/lib/Array.js'
+import { pipe } from 'fp-ts/lib/function.js'
+
 
 const log= console.log
 
@@ -26,18 +29,38 @@ catch{
 
 }
 
-
-
-function tryParsingUrl(url){
-return O.tryCatch(()=>parseUrl(url))
+const tap= f=>opt=>{
+    f(opt)
+    return opt
 }
+
+const tapLog= tap(log)
+
+const tryParsingUrl= url=>O.tryCatch(()=>parseUrl(url))
+
+const getTld= resource=> pipe(resource,
+        resource.split('.'),
+        A.last)
 
 function isDotComOpt(url) {
+
+    const parsedUrlOpt= tryParsingUrl(url)
+    const resourceOpt= O.map(p=>p.resource)(parsedUrlOpt)
+    const tldOpt= O.map(getTld)(resourceOpt)
+
+    log(tldOpt)
     
+    /*
+    pipe(url,
+        tryParsingUrl,
+        tapLog)
+        */
 }
 
+log(isDotComOpt('http://www.website.co.com/posts?hello=world'))
 
+/*
 log(isDotCom('http://www.website.co.com/posts?hello=world'))
 log(isDotCom('http://website.com/posts?hello=world'))
-/* log(isDotCom('http://www.website.net/posts?hello=world'))
+log(isDotCom('http://www.website.net/posts?hello=world'))
 log(isDotCom('dqsdqs')) */
